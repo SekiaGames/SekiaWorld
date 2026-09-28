@@ -1,0 +1,6 @@
+# Normalize EOL for all files that Git considers text files.
+* text=auto eol=lf
+
+# 行尾规则:bat 必须 CRLF(cmd 解析),sh 必须 LF(bash 解析)
+*.bat text eol=crlf
+*.sh text eol=lf
