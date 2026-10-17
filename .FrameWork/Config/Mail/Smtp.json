@@ -1,0 +1,10 @@
+{
+  "Enabled": true,
+  "Host": "smtp.qiye.aliyun.com",
+  "Port": 465,
+  "User": "noreply@sekia.games",
+  "Password": "Yywg8MY2tkouCygx",
+  "From": "",
+  "FromDisplayName": "SekiaGames",
+  "TimeoutSeconds": 20
+}

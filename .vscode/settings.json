@@ -1,0 +1,9 @@
+{
+    "dotnet.defaultSolution": "SekiaWorld.sln",
+    "files.exclude": {
+        "**/*.uid": true,
+        "**/.vs": true,
+        "**/.vscode": true,
+        "**/.godot": true
+    }
+}

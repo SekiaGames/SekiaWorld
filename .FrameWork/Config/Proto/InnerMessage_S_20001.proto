@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package ET;
+
+// ResponseType ObjectQueryResponse
+message ObjectQueryRequest // IRequest
+{
+	int32 RpcId = 1;
+	int64 Key = 2;
+	int64 InstanceId = 3;
+}
+
+// ResponseType A2M_Reload
+message M2A_Reload // IRequest
+{
+	int32 RpcId = 1;
+}
+
+message A2M_Reload // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+}
+
+// ResponseType G2G_LockResponse
+message G2G_LockRequest // IRequest
+{
+	int32 RpcId = 1;
+	int64 Id = 2;
+	string Address = 3;
+}
+
+message G2G_LockResponse // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+}
+
+// ResponseType G2G_LockReleaseResponse
+message G2G_LockReleaseRequest // IRequest
+{
+	int32 RpcId = 1;
+	int64 Id = 2;
+	string Address = 3;
+}
+
+message G2G_LockReleaseResponse // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+}
+
+// ResponseType G2R_GetLoginKey
+message R2G_GetLoginKey // IRequest
+{
+	int32 RpcId = 1;
+	string Account = 2;
+}
+
+message G2R_GetLoginKey // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	int64 Key = 4;
+	int64 GateId = 5;
+}
+
+message G2M_SessionDisconnect
+{
+	int32 RpcId = 1;
+}
+
+message ObjectQueryResponse // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	bytes Entity = 4;
+}
+
+// ================================ 角色存档（Gate ↔ RealM） ================================
+// **只有 RealM 读写数据库**：角色列表存在 MongoDB 的 Account 文档里（roles 数组），Gate 只转发 + 回问。
+// `RoleInfo` 定义在 OuterMessage_C_10001.proto（客户端也要用，所以不放内网 proto 里）。
+// ⚠️ 新消息一律追加到文件末尾：opcode 按文件内 message 出现顺序递增。
+
+// Gate 回问 RealM 要这个账号的角色列表（登录拿到 key 时、以及 Gate 上缓存缺了时）。
+// ResponseType R2G_GetRoles
+message G2R_GetRoles // IRequest
+{
+	int32 RpcId = 1;
+	string Account = 2;
+}
+
+message R2G_GetRoles // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	repeated RoleInfo Roles = 4;
+}
+
+// ResponseType R2G_CreateRole
+message G2R_CreateRole // IRequest
+{
+	int32 RpcId = 1;
+	string Account = 2;
+	int32 Sequence = 3;
+	string Name = 4;
+	int32 Gender = 5;
+	int32 DestClassId = 6;
+	repeated int32 Parts = 7;
+	// 出生点：Gate 按当前地图填（角色一建出来就在那儿），直接存进库，不用等第一次掉线回写
+	float PosX = 8;
+	float PosY = 9;
+	float PosZ = 10;
+	// 建出来时在哪张图（MapConfig.Id）。老存档没有该字段 ⇒ 读出来 0，读端兜底成默认图。
+	int32 MapId = 11;
+}
+
+message R2G_CreateRole // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	repeated RoleInfo Roles = 4;   // 创建后的完整列表
+}
+
+// ResponseType R2G_DeleteRole
+message G2R_DeleteRole // IRequest
+{
+	int32 RpcId = 1;
+	string Account = 2;
+	int32 Sequence = 3;
+}
+
+message R2G_DeleteRole // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	repeated RoleInfo Roles = 4;   // 删除后的完整列表
+}
+
+// 玩家**掉线**（心跳超时）时，Gate 把该角色停在哪儿回写给 RealM（只处理掉线，不处理正常退出）。
+// ResponseType R2G_SaveRole
+message G2R_SaveRole // IRequest
+{
+	int32 RpcId = 1;
+	string Account = 2;
+	int32 Sequence = 3;
+	float PosX = 4;
+	float PosY = 5;
+	float PosZ = 6;
+	float RotY = 7;
+	// 这个角色当时在哪张图（MapConfig.Id）。位置与地图是一对，必须一起回写，
+	// 否则换图后掉线重登会拿新图的位置去旧图出生。
+	int32 MapId = 8;
+}
+
+message R2G_SaveRole // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+}

@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>disable</Nullable>
+        <AssemblyName>Core</AssemblyName>
+        <RootNamespace>ET</RootNamespace>
+        <LangVersion>12</LangVersion>
+        <Configurations>Release</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    </PropertyGroup>
+
+    <PropertyGroup>  
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks> 
+      <DefineConstants>$(DefineConstants);SERVER</DefineConstants>
+      <OutputPath>..\..\Bin\</OutputPath>
+      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      <Optimize>true</Optimize>
+      <NoWarn>CS0169,CS8981,CS9193</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\..\..\Scripts\Core\**\*.cs">
+            <Link>Core\%(RecursiveDir)%(FileName)%(Extension)</Link>
+        </Compile>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Scripts\Share\Analyzer\Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" /> 
+      <ProjectReference Include="..\..\..\Scripts\Share\SourceGenerator\SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+      <ProjectReference Include="..\ThirdParty\Server.ThirdParty.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CommandLineParser" Version="2.8.0" />
+        <PackageReference Include="MemoryPack" Version="1.10.0" />
+        <PackageReference Include="MongoDB.Driver" Version="3.12.0" />
+        <PackageReference Include="SharpZipLib" Version="1.3.3" />
+        <PackageReference Include="NLog" Version="4.7.15" />
+        <PackageReference Include="MailKit" Version="4.18.1" />
+    </ItemGroup>
+
+    <!-- 禁止从 .sln 编译，只能单独编本 csproj -->
+    <Target Name="RejectSolutionBuild" BeforeTargets="Build"
+            Condition="'$(BuildingSolutionFile)' == 'true'">
+        <Error Text="禁止从 .sln 编译 Server.Core：请直接编译本工程的 .csproj。" />
+    </Target>
+</Project>

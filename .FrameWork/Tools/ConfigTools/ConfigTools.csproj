@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>false</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <RootNamespace>ET</RootNamespace>
+        <LangVersion>12</LangVersion>
+        <PackageId>Apps.Tool</PackageId>
+        <AssemblyName>Tool</AssemblyName>
+        <Configurations>Release</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <OutputPath>..\..\Bin\</OutputPath>
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <DefineConstants>$(DefineConstants);SERVER</DefineConstants>
+      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      <Optimize>true</Optimize>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\..\..\Scripts\Core\Network\OpcodeRangeDefine.cs">
+            <Link>Module\Message\OpcodeRangeDefine.cs</Link>
+        </Compile>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <None Update="Template.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\..\Server\Core\Server.Core.csproj" />
+      <ProjectReference Include="..\..\Server\ThirdParty\Server.ThirdParty.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="EPPlus" Version="5.8.8" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.0.1" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
+    </ItemGroup>
+
+    <!-- 禁止从 .sln 编译，只能单独编本 csproj -->
+    <Target Name="RejectSolutionBuild" BeforeTargets="Build"
+            Condition="'$(BuildingSolutionFile)' == 'true'">
+        <Error Text="禁止从 .sln 编译 ConfigTools：请直接编译本工程的 .csproj。" />
+    </Target>
+</Project>

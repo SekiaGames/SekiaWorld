@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package ET;
+
+// ResponseType NetClient2Main_Login
+message Main2NetClient_Login // IRequest
+{
+	int32 RpcId = 1;
+	int32 OwnerFiberId = 2;
+	string Account = 3;		// 账号=邮箱（字段名沿用框架消息，不改以免 ClientSenderComponentSystem.LoginAsync 编译不过）
+	string Password = 4; 	// 密码（token 登录时留空）
+	string Token = 5; 	// 免密登录凭据；非空则忽略 Password
+	string DeviceCode = 6; 	// 设备码（客户端自报的安装级标识）；免密凭据与它一对一绑定
+}
+
+message NetClient2Main_Login // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+
+	int64 PlayerId = 4;
+	string Token = 5; 	// 密码登录时新签发的免密凭据；token 登录时不回填
+	// 该账号的角色列表：Gate 在 C2G_LoginGate 时回问 RealM 拿到，随登录响应一路带回主纤程，
+	// 客户端选角界面直接用它填槽（数据本体在 RealM 的 Mongo 里，客户端不再有本地存档）。
+	repeated RoleInfo Roles = 6;
+}
+
+// 进程内：主纤程 → NetClient 纤程，用于邮箱验证码与注册/重置密码（与登录同一条"直连 Realm"的链路）。
+
+// ResponseType NetClient2Main_GetEmailCode
+message Main2NetClient_GetEmailCode // IRequest
+{
+	int32 RpcId = 1;
+	int32 OwnerFiberId = 2;
+	string Email = 3;  // 邮箱
+	int32 Type = 4;  // 用途：1 = 注册，2 = 重置密码（见 C2R_GetEmailCode.Type）
+}
+
+message NetClient2Main_GetEmailCode // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	int32 Cooldown = 4;  // 冷却剩余秒数
+}
+
+// ResponseType NetClient2Main_Register
+message Main2NetClient_Register // IRequest
+{
+	int32 RpcId = 1;
+	int32 OwnerFiberId = 2;
+	string Email = 3;  // 邮箱
+	string Code = 4;  // 邮箱验证码
+	string Password = 5;  // 密码
+}
+
+message NetClient2Main_Register // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+}
+
+// ResponseType NetClient2Main_ResetPassword
+message Main2NetClient_ResetPassword // IRequest
+{
+	int32 RpcId = 1;
+	int32 OwnerFiberId = 2;
+	string Email = 3;  // 邮箱
+	string Code = 4;  // 邮箱验证码
+	string Password = 5;  // 新密码
+}
+
+message NetClient2Main_ResetPassword // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+}

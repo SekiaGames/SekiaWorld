@@ -1,0 +1,33 @@
+<Project>
+
+  <!--
+    只作用于定义了HotfixLayer的4个热更程序集。
+    拷贝热更程序集产出到Bundles/Code/目录
+  -->
+
+  <PropertyGroup>
+    <HotfixBundleDir>$(MSBuildThisFileDirectory)..\Bundles\Code\</HotfixBundleDir>
+  </PropertyGroup>
+
+  <Target Name="CopyHotfixDllToBundlesCode"
+          AfterTargets="Build"
+          Condition="'$(HotfixLayer)' == 'true'">
+
+    <MakeDir Directories="$(HotfixBundleDir)" />
+
+    <!-- ContinueOnError="false" = 拷不动就让构建失败，别静默产出半个导出包 -->
+    <Copy SourceFiles="$(TargetDir)$(TargetName).dll"
+          DestinationFiles="$(HotfixBundleDir)$(TargetName).dll.bytes"
+          ContinueOnError="false" />
+
+    <!-- pdb 只影响堆栈可读性，缺了不算错（DebugType=None 的配置下就没有） -->
+    <Copy SourceFiles="$(TargetDir)$(TargetName).pdb"
+          DestinationFiles="$(HotfixBundleDir)$(TargetName).pdb.bytes"
+          ContinueOnError="false"
+          Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+
+    <Message Importance="normal"
+             Text="热更 dll 已交付: $(TargetName) -&gt; $(HotfixBundleDir)$(TargetName).dll.bytes" />
+  </Target>
+
+</Project>

@@ -1,0 +1,19 @@
+<Project>
+
+  <!--
+    手动修改SekiaCodeMode调整编译模式：Client/Server/ClientServer
+    补充GODOT宏，Godot不像Unity会自动注入宏。
+    中间产物和输出目录与SekiaWorld.csproj保持一致
+    作用于 Scripts/ 下的 8 个工程（6 个分层 + Analyzer / SourceGenerator）
+  -->
+
+  <PropertyGroup>
+    <SekiaCodeMode>ClientServer</SekiaCodeMode>
+    <DefineConstants>$(DefineConstants);GODOT</DefineConstants>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)..\.godot\mono\temp\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <OutputPath>$(MSBuildThisFileDirectory)..\.godot\mono\temp\bin\$(Configuration)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,28 @@
+# Godot 4+ 自动生成目录
+.godot/
+.nomedia
+
+# Godot 导入缓存
+.import/
+export.cfg
+export_credentials.cfg
+
+#本项目调整
+/Bundles/Code/
+/Bundles/Config
+/Scripts/Model/Generate/*/Config/
+/Scripts/Model/Generate/*/Message/
+.vs/
+
+# 美术包的导出产物（可重建：跑 .Art/pack.sh 即可；流程 → DocAgent/Godot/Feature/美术工程与PCK打包.md）
+.Art/.pck/
+/.Art/SekiaArt_Map
+/.Art/SekiaArt_Character
+/.Art/SekiaArt_UI
+.DS_Store
+/.FrameWork/Config/RecastOutput
+.FrameWork/Database/bin/mongod
+/.Art/Res
+/.FrameWork/Config/MapPoints_TestJsonExport
+/.FrameWork/Config/Excel_FromServer
+/.FrameWork/Config/Excel_FromUnity

@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://c3jxvtrsg7c5q"]
+
+[ext_resource type="Script" uid="uid://ciblr5v3h48dt" path="res://Scripts/Loader/Init.cs" id="1_init"]
+
+[node name="Global" type="Node" unique_id=2136679618]
+script = ExtResource("1_init")
+
+[node name="UnitRoot" type="Node3D" parent="." unique_id=892359068]
+
+[node name="CameraRoot" type="Node3D" parent="." unique_id=1039552568]
+
+[node name="UIRoot" type="Node2D" parent="." unique_id=74428647]
+
+[node name="Hidden" type="CanvasLayer" parent="UIRoot" unique_id=1295107267]
+
+[node name="Low" type="CanvasLayer" parent="UIRoot" unique_id=1176456249]
+layer = 10
+
+[node name="Mid" type="CanvasLayer" parent="UIRoot" unique_id=1545445703]
+layer = 20
+
+[node name="High" type="CanvasLayer" parent="UIRoot" unique_id=616852936]
+layer = 30

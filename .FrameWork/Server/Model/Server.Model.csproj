@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <RootNamespace>ET</RootNamespace>
+        <LangVersion>12</LangVersion>
+        <AssemblyName>Model</AssemblyName>
+        <Configurations>Release</Configurations>
+    </PropertyGroup>
+    <PropertyGroup>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    </PropertyGroup>
+    <PropertyGroup> 
+        <DefineConstants>$(DefineConstants);SERVER</DefineConstants>
+        <OutputPath>..\..\Bin\</OutputPath>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <Optimize>true</Optimize>
+        <NoWarn>CS0169,CS8981,CS9193</NoWarn>
+    </PropertyGroup>
+    <ItemGroup>
+
+        <Compile Include="..\..\..\Scripts\Model\Server\**\*.cs"> 
+            <Link>Server\%(RecursiveDir)%(FileName)%(Extension)</Link> 
+        </Compile>
+
+        <Compile Include="..\..\..\Scripts\Model\Client\**\*.cs"> 
+            <Link>Client\%(RecursiveDir)%(FileName)%(Extension)</Link>
+        </Compile>
+        
+        <Compile Include="..\..\..\Scripts\Model\Share\**\*.cs">
+            <Link>Share\%(RecursiveDir)%(FileName)%(Extension)</Link>
+        </Compile>
+
+        <Compile Include="..\..\..\Scripts\Model\Generate\Server\**\*.cs"> 
+            <Link>Generate\%(RecursiveDir)%(FileName)%(Extension)</Link>
+        </Compile>
+        
+    </ItemGroup> 
+    <ItemGroup> 
+        <ProjectReference Include="..\..\..\Scripts\Share\Analyzer\Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\..\..\Scripts\Share\SourceGenerator\SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\Core\Server.Core.csproj" />
+        <ProjectReference Include="..\ThirdParty\Server.ThirdParty.csproj" />
+    </ItemGroup> 
+    <!-- 禁止从 .sln 编译，只能单独编本 csproj -->
+    <Target Name="RejectSolutionBuild" BeforeTargets="Build"
+            Condition="'$(BuildingSolutionFile)' == 'true'">
+        <Error Text="禁止从 .sln 编译 Server.Model：请直接编译本工程的 .csproj。" />
+    </Target>
+</Project>

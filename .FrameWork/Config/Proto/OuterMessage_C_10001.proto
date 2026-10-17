@@ -1,0 +1,318 @@
+syntax = "proto3";
+package ET;
+
+// ResponseType M2C_TestResponse
+message C2M_TestRequest // IRequest
+{
+	int32 RpcId = 1;
+	string request = 2;
+}
+
+message M2C_TestResponse // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	string response = 4;
+}
+
+// ResponseType G2C_EnterMap
+message C2G_EnterMap // ISessionRequest
+{
+	int32 RpcId = 1;
+	// 这次进图用的是**哪个存档位**上的角色（选角进游戏 / 创角后进游戏）。
+	// 服务端拿它配对：玩家掉线（心跳超时）时，Gate 才知道该把这个角色的位置回写到库里的哪一条。
+	int32 RoleSequence = 2;
+}
+
+message G2C_EnterMap // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	/// 自己的UnitId
+	int64 MyId = 4;
+}
+
+message MoveInfo
+{
+	repeated Unity.Mathematics.float3 Points = 1;
+	Unity.Mathematics.quaternion Rotation = 2;
+	int32 TurnSpeed = 3;
+}
+
+message UnitInfo
+{
+	int64 UnitId = 1;
+	int32 ConfigId = 2;
+	int32 Type = 3;
+	Unity.Mathematics.float3 Position = 4;
+	Unity.Mathematics.float3 Forward = 5;
+	map<int32, int64> KV = 6;
+	MoveInfo MoveInfo = 7;
+}
+
+message M2C_CreateUnits // IMessage
+{
+	repeated UnitInfo Units = 1;
+}
+
+message M2C_CreateMyUnit // IMessage
+{
+	UnitInfo Unit = 1;
+}
+
+message M2C_StartSceneChange // IMessage
+{
+	int64 SceneInstanceId = 1;
+	string SceneName = 2;
+}
+
+message M2C_RemoveUnits // IMessage
+{
+	repeated int64 Units = 1;
+}
+
+message C2M_PathfindingResult
+{
+	int32 RpcId = 1;
+	Unity.Mathematics.float3 Position = 2;
+}
+
+message C2M_Stop
+{
+	int32 RpcId = 1;
+}
+
+message M2C_PathfindingResult // IMessage
+{
+	int64 Id = 1;
+	Unity.Mathematics.float3 Position = 2;
+	repeated Unity.Mathematics.float3 Points = 3;
+}
+
+message M2C_Stop // IMessage
+{
+	int32 Error = 1;
+	int64 Id = 2;
+	Unity.Mathematics.float3 Position = 3;
+	Unity.Mathematics.quaternion Rotation = 4;
+}
+
+// ResponseType G2C_Ping
+message C2G_Ping // ISessionRequest
+{
+	int32 RpcId = 1;
+}
+
+message G2C_Ping // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	int64 Time = 4;
+}
+
+
+message G2C_Test // ISessionMessage
+{
+}
+
+// ResponseType M2C_Reload
+message C2M_Reload // ISessionRequest
+{
+	int32 RpcId = 1;
+	string Account = 2;
+	string Password = 3;
+}
+
+message M2C_Reload // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+}
+
+// ResponseType R2C_Login
+message C2R_Login // ISessionRequest
+{
+	int32 RpcId = 1;
+	string  Email = 2;  // 邮箱（账号体系只支持邮箱注册，登录名即邮箱）
+	string  Password = 3;  // 密码（token 登录时留空）
+	string  Token = 4;  // 免密登录凭据（服务端签发）；非空则忽略 Password
+	string  DeviceCode = 5;  // 设备码（客户端自报的安装级标识）；免密凭据与它一对一绑定
+}
+
+message R2C_Login // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	string Address = 4;
+	int64 Key = 5;
+	int64 GateId = 6;
+	string Token = 7;  // 密码登录时新签发的免密凭据；token 登录时不回填
+}
+
+// ResponseType G2C_LoginGate
+message C2G_LoginGate // ISessionRequest
+{
+	int32 RpcId = 1;
+	int64 Key = 2;  // 帐号
+	int64 GateId = 3;
+}
+
+message G2C_LoginGate // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	int64 PlayerId = 4;
+	// 该账号已有的角色列表。Gate 收到 C2G_LoginGate（= 拿到 key）后回问 RealM 取，随登录响应一起给客户端，
+	// 客户端选角界面直接用它填槽（不再有客户端本地存档）。数据本体在 RealM 的 MongoDB 里。
+	repeated RoleInfo Roles = 5;
+}
+
+message G2C_TestHotfixMessage // ISessionMessage
+{
+	string Info = 1;
+}
+
+// 邮箱注册相关协议。
+// 账号体系约定 —— 只支持邮箱注册，必须先通过邮箱验证码校验才允许注册（校验通过才写库）；登录为 邮箱 + 密码。
+// ⚠️ 新消息一律追加到文件末尾：opcode 按文件内 message 出现顺序递增，插在中间会让后面的消息整体位移。
+
+// ResponseType R2C_GetEmailCode
+message C2R_GetEmailCode // ISessionRequest
+{
+	int32 RpcId = 1;
+	string Email = 2;  // 邮箱
+	// 用途：1 = 注册（要求邮箱**未**注册）；2 = 重置密码（要求邮箱**已**注册）。
+	// 默认 0 按 1 处理。常量见 Model 的 EmailCodeType。
+	int32 Type = 3;
+}
+
+message R2C_GetEmailCode // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	int32 Cooldown = 4;  // 冷却剩余秒数（发码成功时为冷却时长，冷却中为还剩多少秒）
+}
+
+// ResponseType R2C_Register
+message C2R_Register // ISessionRequest
+{
+	int32 RpcId = 1;
+	string Email = 2;  // 邮箱
+	string Code = 3;  // 邮箱验证码
+	string Password = 4;  // 密码（注册成功后用 邮箱 + 密码 登录）
+}
+
+message R2C_Register // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+}
+
+// ResponseType R2C_ResetPassword
+message C2R_ResetPassword // ISessionRequest
+{
+	int32 RpcId = 1;
+	string Email = 2;  // 邮箱
+	string Code = 3;  // 邮箱验证码（与注册同一套码，验证码必须按"重置密码"用途发）
+	string Password = 4;  // 新密码
+}
+
+message R2C_ResetPassword // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+}
+
+// ================================ 角色存档（选角列表 / 创角 / 删除角色） ================================
+// 数据本体存在 **RealM** 侧（MongoDB 的 Account 文档里的 roles 数组），Gate 只中转，客户端只显示。
+// 部件表（Parts）与 Unity `Asset_Role` 的 parts 数组**同序**：[1]Body [2]Hair [3]LeftWeapon [4]RightWeapon
+// [5]Head … [11]Mount [12]Gender [13]HairColorIndex [14]EyeColorIndex [15]SmoothDisplay [16]BodyColorIndex。
+// ⚠️ 新消息一律追加到文件末尾：opcode 按文件内 message 出现顺序递增，插在中间会让后面的消息整体位移。
+
+// 一个存档位上的角色。
+message RoleInfo
+{
+	int32 Sequence = 1;      // 存档位 0..2（对应选角界面 RoleCell1..3）
+	string Name = 2;         // 角色名
+	int32 Gender = 3;        // 1 男 / 2 女
+	int32 DestClassId = 4;   // 创角时选的目标职业 classID（真正建出来的角色是初心者，见创角流程）
+	repeated int32 Parts = 5;  // 外观部件表（初心者 body/eye + 客户端选的头发/发色 + 默认武器）
+	// 下面几项是**运行时数据**，由 Gate 在玩家掉线（心跳超时）时通知 RealM 回写
+	float PosX = 6;
+	float PosY = 7;
+	float PosZ = 8;
+	float RotY = 9;          // 朝向：绕 Y 的欧拉角（度）
+	// 这个角色**当前所在地图**（MapConfig.Id，如 1=普隆德拉 / 2=普隆德拉南门 prt_1）。
+	// 进图时由它决定出生图与下发的地图名（服务器不再写死一张图）。
+	// ⚠️ 老存档没有这个字段 ⇒ 读出来是 0，一律兜底成默认图（见 GateMapConst.DefaultMapId）。
+	int32 MapId = 10;
+}
+
+// ResponseType G2C_CreateRole
+message C2G_CreateRole // ISessionRequest
+{
+	int32 RpcId = 1;
+	int32 Sequence = 2;      // 用哪个存档位
+	string Name = 3;
+	int32 Gender = 4;
+	int32 DestClassId = 5;
+	repeated int32 Parts = 6;
+}
+
+message G2C_CreateRole // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	repeated RoleInfo Roles = 4;   // 创建后的完整列表（客户端直接拿它刷新选角界面）
+}
+
+// ResponseType G2C_DeleteRole
+message C2G_DeleteRole // ISessionRequest
+{
+	int32 RpcId = 1;
+	int32 Sequence = 2;      // 删哪个存档位
+}
+
+message G2C_DeleteRole // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	repeated RoleInfo Roles = 4;   // 删除后的完整列表
+}
+
+// ================================ 传送（跨地图） ================================
+// 角色存档里带 `RoleInfo.MapId`（当前所在地图），服务器按它决定出生图：
+//   进图（C2G_EnterMap）用存档里的图；传送（本协议）把角色挪到目标图并落库。
+// 服务端拿到 MapId 后算出场景名（`"Scene" + MapConfig.NameEn`，如 1→"SceneProntera"），
+// 客户端照旧走 M2C_StartSceneChange → SceneChangeHelper → MapSceneHelper.Resolve 加载地图，无需感知地图表。
+
+// ResponseType G2C_ChangeMap
+message C2G_ChangeMap // ISessionRequest
+{
+	int32 RpcId = 1;
+	// 目标地图（MapConfig.Id）。服务端会校验：表里有这个 id 且该图的服务端导航数据已存在。
+	int32 MapId = 2;
+	// 目标出生点 id（布点数据里 `bp_<id>` 的 id）；0 = 用目标图的默认出生点（id 最小的那个）。
+	// 传送阵带来的（出口的 `target_born_point`）填这个 —— 同一个传送阵应该总能落到同一个位置。
+	int32 TargetBornPoint = 3;
+}
+
+message G2C_ChangeMap // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	// 实际切到的场景名（如 "SceneProntera"），与随后下发的 M2C_StartSceneChange.SceneName 一致
+	string SceneName = 4;
+}

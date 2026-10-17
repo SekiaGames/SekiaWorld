@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>ET</RootNamespace>
+    <AssemblyName>SekiaWorld.Model</AssemblyName>
+    <HotfixLayer>true</HotfixLayer>
+    <LangVersion>12</LangVersion>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>Portable</DebugType>
+    <NoWarn>CS0169;CS8981;CS9193</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(SekiaCodeMode)' == 'Client' ">
+    <Compile Remove="Server/**/*.cs" />
+    <Compile Remove="Generate/Server/**/*.cs" />
+    <Compile Remove="Generate/ClientServer/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(SekiaCodeMode)' == 'Server' ">
+    <Compile Remove="Client/**/*.cs" />
+    <Compile Remove="Generate/Client/**/*.cs" />
+    <Compile Remove="Generate/ClientServer/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(SekiaCodeMode)' == 'ClientServer' ">
+    <Compile Remove="Generate/Client/**/*.cs" />
+    <Compile Remove="Generate/Server/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ThirdParty\ThirdParty.csproj" />
+    <ProjectReference Include="..\Core\Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Share\Analyzer\Analyzer.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Share\SourceGenerator\SourceGenerator.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <!-- 禁止从 .sln 编译，只能单独编本 csproj -->
+  <Target Name="RejectSolutionBuild" BeforeTargets="Build"
+          Condition="'$(BuildingSolutionFile)' == 'true'">
+    <Error Text="禁止从 .sln 编译 Model：请直接编译本工程的 .csproj。" />
+  </Target>
+
+</Project>

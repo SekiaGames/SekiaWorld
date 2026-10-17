@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>ET</RootNamespace>
+    <LangVersion>12</LangVersion>
+    <AssemblyName>App</AssemblyName>
+    <Configurations>Release</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);SERVER</DefineConstants>
+    <OutputPath>..\..\Bin\</OutputPath>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Optimize>true</Optimize>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Loader\Server.Loader.csproj" />
+    <ProjectReference Include="..\Model\Server.Model.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <HotfixLayerProject>$(MSBuildProjectDirectory)/../Hotfix/Server.Hotfix.csproj</HotfixLayerProject>
+  </PropertyGroup>
+
+  <!-- Server.Hotfix 没人 ProjectReference（它把客户端热更源码链接进来单独编一份 Hotfix.dll，
+       服务端 Loader/CodeLoader.cs 启动时要读 ./Hotfix.dll）⇒ 由本工程补编，别漏。
+       上游靠 ET.sln 列全 6 个服务端工程一次编完；本仓禁止走 sln，只能在这里补。 -->
+  <Target Name="BuildHotfixLayers" AfterTargets="Build"
+          Condition="'$(SkipHotfixLayerBuild)' != 'true'">
+    <Exec Command="&quot;$(DOTNET_HOST_PATH)&quot; build &quot;$(HotfixLayerProject)&quot; -c $(Configuration) -p:SkipHotfixLayerBuild=true -v:m" />
+  </Target>
+
+  <!-- 禁止从 .sln 编译，只能单独编本 csproj -->
+  <Target Name="RejectSolutionBuild" BeforeTargets="Build"
+          Condition="'$(BuildingSolutionFile)' == 'true'">
+    <Error Text="禁止从 .sln 编译 Server.App：请直接编译本工程的 .csproj。" />
+  </Target>
+</Project>

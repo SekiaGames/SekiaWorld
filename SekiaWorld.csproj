@@ -1,0 +1,56 @@
+<Project Sdk="Godot.NET.Sdk/4.7.2">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>ET</RootNamespace>
+    <AssemblyName>SekiaWorld</AssemblyName>
+    <LangVersion>12</LangVersion>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>Portable</DebugType>
+    <NoWarn>CS0169;CS8981;CS9193</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Scripts/ThirdParty/**/*.cs" />
+    <Compile Remove="Scripts/Core/**/*.cs" />
+    <Compile Remove="Scripts/Model/**/*.cs" />
+    <Compile Remove="Scripts/ModelView/**/*.cs" />
+    <Compile Remove="Scripts/Hotfix/**/*.cs" />
+    <Compile Remove="Scripts/HotfixView/**/*.cs" />
+    <Compile Remove="Scripts/Share/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="Scripts\Share\Analyzer\Analyzer.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="Scripts\Share\SourceGenerator\SourceGenerator.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="Scripts/ThirdParty/ThirdParty.csproj" />
+    <ProjectReference Include="Scripts/Core/Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <HotfixLayerProject>$(MSBuildProjectDirectory)/Scripts/HotfixView/HotfixView.csproj</HotfixLayerProject>
+  </PropertyGroup>
+
+  <Target Name="BuildHotfixLayers" AfterTargets="Build"
+          Condition="'$(SkipHotfixLayerBuild)' != 'true'">
+    <Exec Command="&quot;$(DOTNET_HOST_PATH)&quot; build &quot;$(HotfixLayerProject)&quot; -c $(Configuration) -p:SkipHotfixLayerBuild=true -v:m" />
+  </Target>
+
+  <!-- 禁止从 .sln 编译：走 sln 会绕过 BuildHotfixLayers、热更层不会被编 -->
+  <Target Name="RejectSolutionBuild" BeforeTargets="Build"
+          Condition="'$(BuildingSolutionFile)' == 'true'">
+    <Error Text="禁止从 .sln 编译 SekiaWorld：请直接编译 SekiaWorld.csproj。" />
+  </Target>
+
+</Project>

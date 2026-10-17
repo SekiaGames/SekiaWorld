@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>disable</Nullable>
+        <LangVersion>12</LangVersion>
+        <RootNamespace>ET</RootNamespace>
+    <AssemblyName>ThirdParty</AssemblyName>
+    <Configurations>Release</Configurations>
+  </PropertyGroup>
+
+    <PropertyGroup>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <DefineConstants>$(DefineConstants);SERVER</DefineConstants>
+        <OutputPath>..\..\Bin\</OutputPath>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <Optimize>true</Optimize>
+        <NoWarn>CS0169,CS8981,CS9193</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\..\..\Scripts\ThirdParty\**\*.cs">
+            <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
+        </Compile>
+    </ItemGroup>
+
+    <!-- 禁止从 .sln 编译，只能单独编本 csproj -->
+    <Target Name="RejectSolutionBuild" BeforeTargets="Build"
+            Condition="'$(BuildingSolutionFile)' == 'true'">
+        <Error Text="禁止从 .sln 编译 Server.ThirdParty：请直接编译本工程的 .csproj。" />
+    </Target>
+
+</Project>

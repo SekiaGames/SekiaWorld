@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <RootNamespace>ET</RootNamespace>
+        <LangVersion>12</LangVersion>
+        <AssemblyName>Loader</AssemblyName>
+        <Configurations>Release</Configurations>
+    </PropertyGroup>
+    <PropertyGroup>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    </PropertyGroup>
+    <PropertyGroup> 
+        <DefineConstants>$(DefineConstants);SERVER</DefineConstants>
+        <OutputPath>..\..\Bin\</OutputPath>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <Optimize>true</Optimize>
+    </PropertyGroup>
+    <ItemGroup>
+        
+    </ItemGroup> 
+    <ItemGroup> 
+        <ProjectReference Include="..\..\..\Scripts\Share\Analyzer\Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\..\..\Scripts\Share\SourceGenerator\SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\Core\Server.Core.csproj" />
+        <ProjectReference Include="..\ThirdParty\Server.ThirdParty.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    </ItemGroup>
+    <!-- 禁止从 .sln 编译，只能单独编本 csproj -->
+    <Target Name="RejectSolutionBuild" BeforeTargets="Build"
+            Condition="'$(BuildingSolutionFile)' == 'true'">
+        <Error Text="禁止从 .sln 编译 Server.Loader：请直接编译本工程的 .csproj。" />
+    </Target>
+</Project>

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <LangVersion>12</LangVersion>
+        <AssemblyName>RecastNavBaker</AssemblyName>
+        <RootNamespace>RecastNavBaker</RootNamespace>
+        <Configurations>Release</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <OutputPath>..\..\Bin\</OutputPath>
+        <Optimize>true</Optimize>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\..\..\Scripts\ThirdParty\DotRecast\Core\**\*.cs" />
+        <Compile Include="..\..\..\Scripts\ThirdParty\DotRecast\Recast\**\*.cs" />
+        <Compile Include="..\..\..\Scripts\ThirdParty\DotRecast\Detour\**\*.cs" />
+    </ItemGroup>
+
+    <!-- 禁止从 .sln 编译，只能单独编本 csproj -->
+    <Target Name="RejectSolutionBuild" BeforeTargets="Build"
+            Condition="'$(BuildingSolutionFile)' == 'true'">
+        <Error Text="禁止从 .sln 编译 RecastNavBaker：请直接编译本工程的 .csproj。" />
+    </Target>
+
+</Project>
