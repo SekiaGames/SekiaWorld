@@ -1,7 +1,5 @@
 #!/bin/bash
-# 配置导出 —— Launch01_ExportConfig.bat 的 macOS 版
-#
-#   双击本文件，或 bash .FrameWork/Launch01_ExportConfig.command
+# 配置导出 —— 双击本文件，或 bash .FrameWork/Launch01_ExportConfig.command
 #
 # 三步：BTImport（有 json 才跑）→ ExcelExporter → Proto2CS，
 # 统一由 dotnet 跑 Bin/Tool.dll。工具内部的相对路径（../Config/…、../../Scripts/…）

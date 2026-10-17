@@ -1,9 +1,7 @@
 #!/bin/bash
-# 启动数据库 —— 启动数据库.bat 的 macOS 版
+# 启动数据库 —— 双击本文件，或 bash .FrameWork/Database/启动数据库.command
 #
-#   双击本文件，或 bash .FrameWork/Database/启动数据库.command
-#
-# 口径与 Launch02_RunServer.bat 的第 1 步完全一致：
+# 口径与 Launch02_RunServer.command 的第 1 步完全一致：
 #   端口 27017、dbpath Database/db、日志 Logs/mongod.log、后台无窗口。
 #
 # ⚠️ 两条 macOS 特有的坑（8.3.11 实测）：

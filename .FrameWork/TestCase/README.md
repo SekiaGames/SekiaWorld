@@ -8,47 +8,44 @@
 ## 怎么跑
 
 ```bash
-bash .FrameWork/TestCase/run.sh            # 默认用例（launch）
-bash .FrameWork/TestCase/run.sh launch     # 指定用例
-FULL=1 bash .FrameWork/TestCase/run.sh     # 连 Tools/Server 一起编（改了那两个工程时才要）
+bash .FrameWork/TestCase/run.command            # 默认用例（launch）
+bash .FrameWork/TestCase/run.command launch     # 指定用例
+FULL=1 bash .FrameWork/TestCase/run.command     # 连 Tools/Server 一起编（改了那两个工程时才要）
 ```
 
-**Windows(Git Bash) 与 macOS 跑的是同一套脚本**，平台差异全在 `lib/common.sh` 里分平台处理
-（Godot 路径 / 仓库根 / dotnet 输出语言 / 怎么喂 stdin），`run.sh` 与 `cases/*.sh` 是平台无关的。
-要覆盖默认值：`GODOT=... REPO=... DOTNET=... bash .FrameWork/TestCase/run.sh launch`。
+**Windows(Git Bash) 与 macOS 跑的是同一套脚本**，平台差异全在 `lib/common.command` 里分平台处理
+（Godot 路径 / 仓库根 / dotnet 输出语言 / 怎么喂 stdin），`run.command` 与 `cases/*.command` 是平台无关的。
+要覆盖默认值：`GODOT=... REPO=... DOTNET=... bash .FrameWork/TestCase/run.command launch`。
 
-**macOS 上的差异：**
+**平台上的差异：**
 
-- Godot 默认找 `/Applications/Godot_mono.app/Contents/MacOS/Godot`（也认 `~/Applications/` 和 PATH 里的 `godot`）。
+- Godot 默认找 `/Applications/Godot_mono.app/Contents/MacOS/Godot`（也认 `~/Applications/` 和 PATH 里的 `godot`）；
+  Windows 默认找 `D:/Ghost/GameDev/…_console.exe`，都可用 `GODOT=…` 覆盖。
 - 仓库根从脚本位置往上推三级自动得出，换克隆位置不用改。
-- 给人用可以**双击 `run.command`**（对应 Windows 的 `run.bat`：列用例 → 选一个 → 跑完停住等你看结果）。
+- 给人用可以**双击 `run.command`**（列用例 → 选一个 → 跑完停住等你看结果）。
   ⚠️ `.workbuddy-ai` 在 Finder 里是隐藏目录，要么 `Cmd+Shift+.` 显示隐藏文件，要么直接跑
   `bash .FrameWork/TestCase/run.command`。
-- `build_tool.sh`（场景 4）**目前只有 Windows 能跑**：里面写死了 Windows 的 Python 路径，Mac 上要另配。
+- `build_tool.command`（场景 4）**两个平台都能跑**：Python 按 `python3` / `python` / 常见安装位置探测，
+  探测不到只警告「跳过占用检查」，不会误拦（可用 `PYTHON=…` 覆盖）。
 
 ⚠️ **用例 = 测试场景 1**（日常开发 / 客户端 All-in-One，只编客户端 Debug）。
 它**替代不了场景 2 / 3 / 4**：服务端 / 工具 / `ExportRelease` 一概不编；
 反过来那些构建不跑代码、验不了运行期。对照表见 `DocAgent/Godot/Feature/测试用例.md` §2.0。
 ⇒ 日常改客户端跑用例即可；**部署调服务端 / 出包 / 改工具**时才跑对应场景的构建（§1）。
-**改工具走 `build_tool.sh`**（见下）—— 别手拼 `dotnet build`，会绕过占用检查。
+**改工具走 `build_tool.command`**（见下）—— 别手拼 `dotnet build`，会绕过占用检查。
 
 退出码 `0` = PASS、`1` = FAIL、`2` = 用例不存在。
 
 ⚡ **用例不管美术包（`.pck`）** —— 资源打包由客户负责，测试流程只编代码（`build_godot()` 只编 `SekiaWorld.csproj`）。
-跑用例前进图需要的美术包要**客户先自己打好**。
+跑用例前进图需要的美术包要**客户先自己打好**：`bash .Art/ExportAsset.command`（全部）/
+`bash .Art/ExportAsset.command <工程名>`（单个），落 `.Art/.pck/`。
 
-手工打包：`bash .Art/pack.sh`（全部）/ `bash .Art/pack.sh <工程名>`（单个）/ 双击 `.Art/pack.bat`。
-
-**双击 `run.bat`**（Windows 给人用）：
+**双击 `run.command`**：
 
 - 不带参数双击 → **列出现有用例**，输入编号或用例名回车即可；直接回车 = 默认用例。
-- 菜单是从 `cases/` 目录**自动发现**的 ⇒ 加用例不用改 bat、也不用加新 bat。
-- 跑完停在窗口里等你看 `PASS` / `FAIL`；找不到 `bash` 会提示装 Git for Windows。
-- 要从命令行指定：`run.bat launch`（**有参数就不弹菜单**）。
-
-`run.command` 是同一件事的 macOS 版（见上）。
-
-Agent 走 `run.sh`（无参数 = 默认用例，**不弹菜单**）。
+- 菜单是从 `cases/` 目录**自动发现**的 ⇒ 加用例只要丢一个 `.command` 进去，不用改菜单。
+- 跑完停在窗口里等你看 `PASS` / `FAIL`。
+- 要从命令行指定：`run.command launch`（**有参数就不弹菜单**；非终端（Agent 管道）也不弹、不等回车）。
 
 ## 用例表
 
@@ -59,7 +56,7 @@ Agent 走 `run.sh`（无参数 = 默认用例，**不弹菜单**）。
 | **`createrole`** | `entermap` + **新手流程**：选角 → 创角场景/界面 → 换职业/性别/发型/发色/头饰 → 进入游戏进首图 prt_1 → 主界面/相机/寻路/设置 → 切换角色 → 掉线回写 → 重启重登读回位置 → 删角 | **动了角色存档（创角/删角/回写）、选角/创角、进图出生点、主相机时跑它。** 最完整也最慢（含 40 秒冻结模拟掉线） |
 | **`changemap`** | `createrole` 的「登录 + 清场 + 创角 + 进首图」+ **传送**：`C2G_ChangeMap`(mapId=1) → `G2C_ChangeMap`(SceneProntera) → 服务端换图重建 Unit → 客户端加载 `res://Scene/Prontera/SceneProntera.tscn` → **重启重登仍在普隆德拉**（验证换图立刻落库）→ **地面碰撞体补齐**（`[地面碰撞] SceneProntera：新增 141`）→ **传送阵**（prt_1 1 个 →普隆德拉；普隆德拉 2 个 →prt_1 与同图 ex_5；菜单第 9 项走过去 → `[传送阵] 走进传送阵` → 真的切回 prt_1）→ **相机按图复位**（普隆德拉 `[相机] 主相机已就位：SceneProntera` + `fov 24.0`） | **动了地图身份/传送（`GateMapConst`、`Unit.MapId`、`C2G_ChangeMap*`、角色存档的 `MapId`、地面碰撞 `MapGroundCollision`、传送阵 `MapWarp`/`WarpComponent`、每图相机 `ApplyMapCameraInfo`）时跑它。** ⚠️ 前置多两条：`.pck` 里要有 `Scene/Prontera`、`.FrameWork/Config/RecastOutput/SceneProntera` 要烘好 |
 
-> 加新用例：在 `cases/` 放一个 `.sh`（`source` 公共库、用 `wait_for` 断言、末尾 `finish`），
+> 加新用例：在 `cases/` 放一个 `.command`（`source` 公共库、用 `wait_for` 断言、末尾 `finish`），
 > **并回到本表登记一行**（表是 Agent 选用例的依据，漏登记 = 用例白写）。
 >
 > ⚠️ **日志里的变量一律加花括号**：写 `${VAR}（中文）`，**别写** `$VAR（中文）`。
@@ -73,7 +70,7 @@ Agent 走 `run.sh`（无参数 = 默认用例，**不弹菜单**）。
 
 ## 前置条件（客户侧，Agent 不管）
 
-- MongoDB 已在 `127.0.0.1:27017` 监听（`.FrameWork/Launch02_RunServer.bat` 那套是客户的事）。
+- MongoDB 已在 `127.0.0.1:27017` 监听（`.FrameWork/Launch02_RunServer.command` 那套是客户的事）。
 - **`launch` 不需要测试账号**；**`entermap` 需要**
   （放 `.FrameWork/Config/TestAccount/<邮箱>.txt`：文件名 = 邮箱、内容 = 密码），且只用**账号密码**模式 ——
   免密 / 注册 / 重置密码都不接。约定见 `DocAgent/Godot/Feature/测试用例.md` §2.6。
@@ -82,22 +79,20 @@ Agent 走 `run.sh`（无参数 = 默认用例，**不弹菜单**）。
 ## 目录
 
 ```
-run.sh            入口（Git Bash / macOS）：无参 = 默认用例
-run.bat           入口（Windows 双击）：列用例菜单挑一个；有参数则直接跑
-run.command       入口（macOS 双击）：同上，等价于 run.bat
-build_tool.sh     场景 4：改工具后的构建（编前查占用，被占就拦下）⚠️ 目前只有 Windows 能跑
-lib/common.sh     公共库：build / start_game / send / wait_for / wait_soft / stop_game / finish
+run.command        唯一入口：无参 = 默认用例；无参 + 终端双击 = 列用例菜单、跑完等回车
+build_tool.command     场景 4：改工具后的构建（编前查占用，被占就拦下）
+lib/common.command     公共库：build / start_game / send / wait_for / wait_soft / stop_game / finish
                   平台差异（Godot 路径 / 仓库根 / dotnet 语言 / 喂 stdin）都在这一个文件里分平台处理
-cases/*.sh        用例本体，一个用例一个文件（平台无关，别往里塞 if uname）
+cases/*.command        用例本体，一个用例一个文件（平台无关，别往里塞 if uname）
 .run/             运行产物（构建日志、agent_cmd.txt、agent_out.txt），不入库
 ```
 
-## 场景 4：改工具（`build_tool.sh`）
+## 场景 4：改工具（`build_tool.command`）
 
 ```bash
-bash .FrameWork/TestCase/build_tool.sh              # 列出可选工具
-bash .FrameWork/TestCase/build_tool.sh configtools  # 编指定工具
-bash .FrameWork/TestCase/build_tool.sh all          # 三个都编
+bash .FrameWork/TestCase/build_tool.command              # 列出可选工具
+bash .FrameWork/TestCase/build_tool.command configtools  # 编指定工具
+bash .FrameWork/TestCase/build_tool.command all          # 三个都编
 ```
 
 退出码 `0` = PASS、`1` = FAIL（含「被占用，先别编」）、`2` = 没有这个工具。

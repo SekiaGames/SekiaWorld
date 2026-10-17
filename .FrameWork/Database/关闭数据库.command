@@ -1,7 +1,5 @@
 #!/bin/bash
-# 关闭数据库 —— 关闭数据库.bat 的 macOS 版
-#
-#   双击本文件，或 bash .FrameWork/Database/关闭数据库.command
+# 关闭数据库 —— 双击本文件，或 bash .FrameWork/Database/关闭数据库.command
 #
 # 按 lsof 取监听 27017 的 PID，只动本项目这一个 mongod；
 # 先 kill（SIGTERM，mongod 走完整优雅关闭：flush journal + checkpoint + 释放锁），

@@ -1,10 +1,10 @@
 #!/bin/bash
 # 测试用例公共库 —— 构建 / 起无头客户端 / 发命令 / 断言
-# 由 cases/*.sh source，不要单独跑。
+# 由 run.command 与 cases/*.command source，不要单独跑。
 #
 # 同一套用例要在 Windows(Git Bash) 与 macOS 上跑。差异只有四处，都在本文件里分平台处理：
 #   ① Godot 可执行文件在哪   ② 仓库根在哪   ③ dotnet 输出的语言   ④ 怎么把命令喂进游戏 stdin
-# 下面每个分平台处都标了「平台差异」，cases/*.sh 与 run.sh 是平台无关的，不要往里塞 if uname。
+# 下面每个分平台处都标了「平台差异」，cases/*.command 与 run.command 是平台无关的，不要往里塞 if uname。
 #
 # ⚠️ 写日志时变量一律加花括号：`${VAR}（中文）`，不要写 `$VAR（中文）`。
 #    macOS 自带的是 GNU bash 3.2（/bin/bash），它有个老 bug —— `$VAR` 后面紧跟**多字节字符**时

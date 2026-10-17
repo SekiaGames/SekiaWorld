@@ -1,8 +1,8 @@
 #!/bin/bash
 # 场景 4：改工具后的构建
-#   bash .FrameWork/TestCase/build_tool.sh              # 列出可选工具
-#   bash .FrameWork/TestCase/build_tool.sh configtools  # 编指定工具
-#   bash .FrameWork/TestCase/build_tool.sh all          # 三个都编
+#   bash .FrameWork/TestCase/build_tool.command              # 列出可选工具
+#   bash .FrameWork/TestCase/build_tool.command configtools  # 编指定工具
+#   bash .FrameWork/TestCase/build_tool.command all          # 三个都编
 # 退出码：0 = PASS，1 = FAIL（含「被占用，先别编」），2 = 没有这个工具
 #
 # ⚠️ 这里把「编前检查占用」固化成流程：MCP（et-excel）常驻时会锁住
