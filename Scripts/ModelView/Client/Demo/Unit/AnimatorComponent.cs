@@ -1,22 +1,21 @@
-﻿using System.Collections.Generic;
-
-namespace ET.Client
+﻿namespace ET.Client
 {
 	public enum MotionType
 	{
 		None,
 		Idle,
-		Run,
+		Move,
 	}
 
-	[ComponentOf]
+	[ComponentOf(typeof(Unit))]
 	public class AnimatorComponent : Entity, IAwake, IUpdate, IDestroy
 	{
-		public HashSet<string> Parameter = new();
+		public EntityRef<RoleComponent> Role { get; set; }
 
-		public MotionType MotionType;
-		public float MontionSpeed;
-		public bool isStop;
-		public float stopSpeed;
+		public MotionType MotionType { get; set; }
+
+		public string IdleAction { get; set; } = "wait";
+
+		public string MoveAction { get; set; } = "walk";
 	}
 }
